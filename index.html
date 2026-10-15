@@ -122,7 +122,7 @@ ul.tight{margin:0;padding-left:18px;display:grid;gap:4px;max-width:78ch}
 
 <div class="wrap">
 <header style="display:grid;gap:14px">
-  <div class="eyebrow">Turing CompanyBench · 40 long-horizon company tasks · Gemini 4 Argon, Claude Fable 5.1, GPT 6.1 Sol, GPT 6 Astra · 3 runs each</div>
+  <div class="eyebrow">Turing CompanyBench · 40 long-horizon company tasks · Gemini 4 Argon, Claude Fable 5.1, GPT 6.1 Sol, GPT 6 Astra · 3 runs each · same Terminus 2 agent harness · <a href="#method" style="color:inherit">how runs work</a></div>
   <h1 id="h1">Argon can do the work. It needs far more time to do it.</h1>
   <p class="lede" id="lede"></p>
   <div class="kpis" id="kpis"></div>
@@ -207,7 +207,7 @@ ul.tight{margin:0;padding-left:18px;display:grid;gap:4px;max-width:78ch}
   <div class="grid2">
     <div class="panel"><h3>Denominators</h3><div class="tbl"><table id="ledger"></table></div></div>
     <div class="panel"><h3>Run policy</h3><ul class="tight">
-      <li>Terminus 2 agent for all four models, reasoning effort high, internet on, web search off.</li>
+      <li>Harness: Terminus 2 (version 2.0.0) for all four models, each run in its own sandbox container. It is an agent loop, not a single API call: the model gets the task prompt and a live Linux terminal; each turn it replies in a fixed JSON format (analysis, plan, keystrokes); the harness types the keystrokes, waits the time the model asked for, and returns the screen output. Two tools only: type keystrokes and wait, and mark the task complete. The company systems are tool servers reached by scripts in that terminal.</li><li>Settings: reasoning effort high, internet on, web search off, same prompt and tools for every model. The run records do not store maximum output tokens, long decode or temperature; being confirmed with the platform. Grading runs after the agent stops.</li><li>Harness factors that could matter: the fixed JSON reply format, screen text as the only observation, and model response time counting against the 80 minute clock.</li>
       <li>Counted runs: first 3 finished runs per task and model; 160 of 160 cells have 3.</li>
       <li>Full marks: every check passed. Mean score: weighted share of checks passed.</li>
       <li>80 minute view: one 4,800 second agent limit for every model.</li>
