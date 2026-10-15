@@ -92,6 +92,32 @@ ul.tight{margin:0;padding-left:18px;display:grid;gap:4px;max-width:78ch}
 .modeblock h3 .num{font-size:14px;color:var(--muted);margin-left:8px}
 @media (max-width:620px){.bar{grid-template-columns:96px 1fr 96px}.st{grid-template-columns:44px 44px minmax(0,1fr)}.st .cls,.st .tok{display:none}}
 @media (prefers-reduced-motion:no-preference){.fill{transition:width .35s ease}}
+
+.pl{background:#0e141b;color:#d7dee6;border:1px solid #273240;border-radius:10px;overflow:hidden;--pa:#4aa3ff;--pg:#25c26e;--pm:#7d8b99}
+.pl-tabs{display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px 0;background:#0e141b}
+.pl-tabs button{font:500 13px var(--mono);background:#151d27;color:#9fb0c0;border:1px solid #273240;border-bottom:0;border-radius:8px 8px 0 0;padding:8px 12px;cursor:pointer}
+.pl-tabs button[aria-pressed="true"]{background:#0e141b;color:#fff;border-color:#3a4a5c}
+.pl-head{display:flex;align-items:center;gap:10px;padding:12px 16px;border-top:1px solid #273240;border-bottom:1px solid #273240;font:13px var(--mono);color:#9fb0c0}
+.pl-dots span{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px}
+.pl-body{display:grid;grid-template-columns:minmax(150px,280px) minmax(0,1fr);min-height:440px}
+.pl-list{max-height:520px;overflow:auto;border-right:1px solid #273240;font:13px var(--mono)}
+.pl-list div{padding:8px 14px;border-bottom:1px solid #1b2430;cursor:pointer;color:#9fb0c0}
+.pl-list div.on{background:#132131;color:var(--pg);border-left:3px solid var(--pg)}
+.pl-list div.mom{color:#ffd166}
+.pl-list div.long{color:#ff9e7a}
+.pl-detail{padding:16px 22px;display:grid;gap:10px;align-content:start;min-width:0}
+.pl-detail h4{margin:0;font:600 19px var(--mono);color:var(--pa)}
+.pl-lab{font:12px var(--mono);letter-spacing:.06em;color:var(--pm);text-transform:uppercase}
+.pl-box{background:#141c26;border:1px solid #273240;border-radius:6px;padding:10px 12px;font:12.5px/1.55 var(--mono);white-space:pre-wrap;word-break:break-word;max-height:260px;overflow:auto;color:#d7dee6}
+.pl-box.clip{max-height:120px}
+.pl-mom{background:#0f2a1c;border:1px solid #1f6b43;border-radius:8px;padding:12px 14px;color:#4be08f;font:600 14px var(--mono)}
+.pl-walk{border-left:3px solid var(--pa);padding-left:10px;font-size:13.5px;color:#d7dee6}
+.pl-foot{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:12px 16px;border-top:1px solid #273240}
+.pl-foot button{font:500 13px var(--mono);background:#151d27;color:#d7dee6;border:1px solid #273240;border-radius:8px;padding:8px 14px;cursor:pointer}
+.pl-foot button.go{background:var(--pg);color:#06210f;border-color:var(--pg)}
+.pl-foot input[type=range]{flex:1;min-width:120px;accent-color:var(--pg)}
+.pl-foot select{font:13px var(--mono);background:#151d27;color:#d7dee6;border:1px solid #273240;border-radius:8px;padding:7px;max-width:260px}
+@media (max-width:700px){.pl-body{grid-template-columns:1fr}.pl-list{max-height:180px;border-right:0;border-bottom:1px solid #273240}}
 </style>
 
 <div class="wrap">
@@ -157,15 +183,14 @@ ul.tight{margin:0;padding-left:18px;display:grid;gap:4px;max-width:78ch}
 
 <section id="playwrap" style="border-bottom:0">
   <div class="eyebrow">Trace player</div>
-  <h2>One run, step by step.</h2>
-  <p class="foot">Each step shows the tool call with every literal masked (quoted text shows as ..., numbers of 3 or more digits as #). Highlighted steps carry a reader's note. Bars are output tokens per step on a minute axis; the dashed line is 80 minutes.</p>
-  <div id="player" tabindex="-1">
-    <div class="ctl"><select id="pick" aria-label="Choose a run"></select><button id="prev">Previous step</button><button id="next">Next step</button></div>
-    <div class="ctl" id="same"></div>
-    <div class="kv" id="pk"></div>
-    <div id="pcard" style="display:grid;gap:6px;font-size:13.5px"></div>
-    <svg id="tl" role="img" aria-label="Output tokens per step over time"></svg>
-    <div class="steps" id="psteps"></div>
+  <h2>Every step, with what the model said, what it ran and what came back.</h2>
+  <p class="foot">Answer values from the task's grader, emails and personal names are masked as [value], [email] and [name]. Everything else is the run as recorded. Pick a story, or open any run from the matrix, a card or the side-by-side section.</p>
+  <div class="pl" id="player" tabindex="-1">
+    <div class="pl-tabs" id="pltabs"></div>
+    <div class="pl-head"><span class="pl-dots"><span style="background:#ff5f57"></span><span style="background:#febc2e"></span><span style="background:#28c840"></span></span><span id="plhead"></span></div>
+    <div class="pl-body"><div class="pl-list" id="pllist"></div><div class="pl-detail" id="pldetail"></div></div>
+    <div class="pl-foot"><button id="prev">&larr; prev</button><span class="num" id="plpos"></span><button id="next">next &rarr;</button><input type="range" id="plslider" min="0" max="0" value="0" aria-label="Step"><button class="go" id="plmom">Jump to the moment</button><button class="go" id="plfull" aria-pressed="false">Full detail: off</button><select id="pick" aria-label="Choose a run"></select></div>
+    <div style="padding:0 16px 14px" class="ctl" id="same"></div>
   </div>
 </section>
 
@@ -313,54 +338,72 @@ function ledger(){
 function setView(v){VIEW=v;argMiss=v==='80'?argMiss80:argMissLong;$('#v80').setAttribute('aria-pressed',v==='80');$('#vlong').setAttribute('aria-pressed',v!=='80');results();matrix();modes();drawCards()}
 $('#v80').onclick=()=>setView('80'); $('#vlong').onclick=()=>setView('long');
 
-// player
-const cache={}; let cur=null, curStep=0;
+// player (Finance Agent Eval layout)
+const cache={},full={}; let cur=null,curStep=0,FULL=false,MOM=null,ST=[],FD=null;
 const sel=$('#pick');
-const optText=k=>{const r=runBy[k];return `${r.alias} ${L[r.model]} run ${r.cell}${r.view==='long'?' (5 hour rerun)':''} · score ${fmt(r.reward,2)}`};
+const optText=k=>{const r=runBy[k];return `${r.alias} ${L[r.model]} run ${r.cell}${r.view==='long'?' (5 hour rerun)':''}, score ${fmt(r.reward,2)}`};
 function fillPick(){
-  const feat=[...new Set(Object.keys(D.walk||{}).concat(Object.keys(NOTES)))].filter(k=>runBy[k]).sort((a,b)=>((D.walk||{})[b]?1:0)-((D.walk||{})[a]?1:0)||(a<b?-1:1));
-  sel.innerHTML='<optgroup label="Walked step by step, then runs with notes">'+feat.map(k=>`<option value="${k}">${esc(optText(k))}</option>`).join('')+'</optgroup><optgroup label="All Argon runs below full">'+argMiss.map(r=>`<option value="${r.key}">${esc(optText(r.key))}</option>`).join('')+'</optgroup>';
+  const feat=[...new Set(Object.keys(D.walk||{}).concat(Object.keys(NOTES)))].filter(k=>runBy[k]).sort();
+  sel.innerHTML='<optgroup label="Walked step by step">'+feat.map(k=>`<option value="${k}">${esc(optText(k))}</option>`).join('')+'</optgroup><optgroup label="All Argon runs below full">'+argMiss80.map(r=>`<option value="${r.key}">${esc(optText(r.key))}</option>`).join('')+'</optgroup>';
 }
 sel.onchange=()=>open(sel.value,false);
-async function load(alias){if(!cache[alias]){const r=await fetch('data/traces/'+alias+'.json');cache[alias]=await r.json()}return cache[alias]}
-async function open(k,scroll,step){
-  const r=runBy[k]; if(!r) return; cur=k;
-  if(![...sel.options].some(o=>o.value===k)){const o=document.createElement('option');o.value=k;o.textContent=optText(k);sel.appendChild(o)}
-  sel.value=k; if(scroll) $('#player').scrollIntoView({block:'start'});
-  const c=D.cards[k]||D.rcards[k]||{};
-  $('#pk').innerHTML=`<span><b>${r.alias}</b> ${esc(T(r.alias))}</span><span>${L[r.model]}</span><span>score <b>${fmt(r.reward,2)}</b></span><span>minutes <b>${fmt(r.minutes,1)}</b></span><span>turns <b>${r.turns}</b></span><span>tool calls <b>${r.tool_calls}</b></span><span>output tokens <b>${fmt(r.out_tok)}</b></span>${r.timeout?'<span class="chip to">hit 80 min limit</span>':''}${r.view==='long'?'<span class="chip lg">5 hour rerun</span>':''}`;
+const STORIES=[['T30-argon-3','Re-checks a settled finding'],['T03-argon-2','One huge turn eats the clock'],['T16-argon-1','Figures before any query'],['T10-argon-3','Narrows a written rule'],['T28-argon-2','Ahead, then a duplicate email'],['T33-argon-1','Better: checks event order']].filter(x=>runBy[x[0]]);
+$('#pltabs').innerHTML=STORIES.map(([k,t])=>`<button data-tab="${k}" aria-pressed="false">${esc(k.split('-')[0])}: ${esc(t)}</button>`).join('');
+$('#pltabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(b)open(b.dataset.tab,false)});
+async function getJSON(u){try{const r=await fetch(u);return r.ok?await r.json():null}catch(e){return null}}
+async function load(alias){if(!(alias in cache))cache[alias]=await getJSON('data/traces/'+alias+'.json')||{};if(!(alias in full))full[alias]=await getJSON('data/full/'+alias+'.json')||{};return [cache[alias],full[alias]]}
+function momentOf(k,steps){
+  const t=((D.sbs||{}).tasks||[]).find(x=>x.argon_key===k||x.peer_key===k);
+  if(t){const n=t.argon_key===k?t.diverge_step_argon:t.diverge_step_peer;if(n)return [n,t.why]}
   const W=(D.walk||{})[k];
-  $('#pcard').innerHTML=(W&&W.verdict?`<p><b>Walkthrough:</b> ${esc(W.verdict)}</p>`:'')+(c.mode?`<p><b>Failure mode:</b> ${esc(c.mode)}</p>`:'')+(c.grader?`<p><b>Grader:</b> ${esc(c.grader)}</p>`:'');
+  if(W){const ks=Object.keys(W.steps).map(Number).sort((a,b)=>a-b);const pats=[/re-?check|re-?test|again|already (had|settled)|second time|loop/i,/instead|narrow|without|wrong|miss|duplicate|stub|guess|own variant/i,/never|fails|ran out|loses/i];let bad;for(const re of pats){bad=ks.find(n=>re.test(W.steps[n][2]||''));if(bad)break}const any=ks.filter(n=>W.steps[n][2]);const n=bad||any[0];if(n)return [n,W.steps[n][2]]}
+  const N=NOTES[k]||{};const nk=Object.keys(N).map(Number).sort((a,b)=>a-b);if(nk.length)return [nk[0],N[nk[0]]];
+  if(!steps.length)return null;let big=0;steps.forEach((s,i)=>{if(s[4]>steps[big][4])big=i});return [steps[big][0],`Largest single turn of the run: ${fmt(steps[big][4])} output tokens.`];
+}
+async function open(k,scroll,step){
+  const r=runBy[k];if(!r)return;cur=k;
+  if(![...sel.options].some(o=>o.value===k)){const o=document.createElement('option');o.value=k;o.textContent=optText(k);sel.appendChild(o)}
+  sel.value=k;document.querySelectorAll('#pltabs button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tab===k));
+  if(scroll)$('#player').scrollIntoView({block:'start'});
+  const lf=await load(r.alias);ST=(lf[0]||{})[k]||[];FD=(lf[1]||{})[k]||null;
+  MOM=momentOf(k,ST);
+  $('#plhead').textContent=`${L[r.model]} / ${r.alias} ${T(r.alias)} / ${r.turns} turns, ${r.tool_calls} tool calls, ${fmt(r.minutes,0)} min / score ${fmt(r.reward,2)}${r.timeout?' / hit the 80 minute limit':''}${r.view==='long'?' / 5 hour rerun':''}`;
   const same=D.runs.filter(x=>x.alias===r.alias&&x.key!==k);
   $('#same').innerHTML='<span class="foot">Same task:</span> '+same.map(x=>`<button data-k="${x.key}">${x.view==='long'?'Argon 5h':L[x.model].split(' ').slice(-1)[0]} ${x.cell}</button>`).join('');
+  $('#pllist').innerHTML=ST.map((s,i)=>`<div data-i="${i}" class="${MOM&&s[0]==MOM[0]?'mom':s[4]>=10000?'long':''}">${String(s[0]).padStart(2,'0')} · ${esc(s[2])}${MOM&&s[0]==MOM[0]?' ●':''}</div>`).join('');
+  $('#plslider').max=Math.max(0,ST.length-1);
   try{history.replaceState(null,'','#'+k)}catch(e){}
-  const steps=(await load(r.alias))[k]||[];
-  draw(steps,NOTES[k]||{},(D.walk||{})[k]);
-  if(step){const i=steps.findIndex(s=>s[0]==step);if(i>=0)mark(i)}
+  let i=0;if(step){const j=ST.findIndex(s=>s[0]==step);if(j>=0)i=j}
+  mark(i);
 }
-function draw(steps,notes,walk){
-  const WS=(walk&&walk.steps)||{};
-  const svg=$('#tl'),W=svg.clientWidth||900,H=150,pad=34;
-  const tmax=Math.max(80,...steps.map(s=>s[1])),kmax=Math.max(8000,...steps.map(s=>s[4]));
-  const x=t=>pad+(W-pad-10)*t/tmax,y=v=>H-22-(H-40)*v/kmax;
-  let g=`<line x1="${pad}" y1="${H-22}" x2="${W-10}" y2="${H-22}" stroke="var(--rule)"/><line x1="${x(80)}" y1="10" x2="${x(80)}" y2="${H-22}" stroke="var(--bad)" stroke-dasharray="3 3"/>`;
-  [0,0.25,0.5,0.75,1].forEach(f=>{const t=Math.round(tmax*f);g+=`<text x="${x(t)}" y="${H-6}" font-size="10" text-anchor="middle" fill="var(--muted)" font-family="var(--mono)">${t}m</text>`});
-  g+=`<text x="4" y="${y(kmax)+4}" font-size="10" fill="var(--muted)" font-family="var(--mono)">${fmt(kmax/1000)}k</text>`;
-  steps.forEach((s,i)=>{g+=`<rect data-i="${i}" x="${x(s[1])-1.5}" y="${y(s[4])}" width="3" height="${Math.max(1,H-22-y(s[4]))}" fill="${notes[s[0]]?'var(--accent)':s[4]>=8000?'var(--bad)':'var(--fable)'}"/>`});
-  g+=`<rect id="cur" x="0" y="10" width="2" height="${H-32}" fill="var(--ink)" opacity="0.6"/>`;
-  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.innerHTML=g;
-  $('#psteps').innerHTML=steps.map((s,i)=>`<div class="st${notes[s[0]]?' noted':''}" data-i="${i}"><span class="num">step ${s[0]}</span><span class="num">min ${fmt(s[1],0)}</span><span class="cls">${s[2]}${s[3].length?'<br><span class="foot">'+esc(s[3].join(', '))+'</span>':''}</span><span>${WS[s[0]]?'<span class="note">'+esc(WS[s[0]][0])+'</span><span class="saw">Saw: '+esc(WS[s[0]][1])+'</span>'+(WS[s[0]][2]?'<span class="means">'+esc(WS[s[0]][2])+'</span>':''):(notes[s[0]]?'<span class="note">'+esc(notes[s[0]])+'</span>':'')}${s[8]?'<code>'+esc(s[8])+'</code>':''}</span><span class="num tok" style="text-align:right">${fmt(s[4])}</span></div>`).join('');
-  window._steps=steps;mark(0);
+function mark(i){
+  if(!ST.length){$('#pldetail').innerHTML='<p>No steps recorded.</p>';return}
+  curStep=Math.max(0,Math.min(ST.length-1,i));const s=ST[curStep],n=s[0];
+  document.querySelectorAll('#pllist div').forEach(e=>e.classList.toggle('on',+e.dataset.i===curStep));
+  const el=document.querySelector(`#pllist div[data-i="${curStep}"]`);if(el){const b=$('#pllist');b.scrollTop=el.offsetTop-b.offsetTop-120}
+  $('#plslider').value=curStep;$('#plpos').textContent=`step ${n} / ${ST.length}`;
+  const f=FD&&FD.find(x=>x[0]===n);const W=((D.walk||{})[cur]||{}).steps||{};const w=W[n];const note=(NOTES[cur]||{})[n];
+  const clip=FULL?'':' clip';
+  let h=`<h4>${esc(s[2])}${s[3].length?' <span style="font-size:13px;color:#9fb0c0">'+esc(s[3].join(', '))+'</span>':''}</h4>`;
+  if(w)h+=`<div class="pl-walk"><b>${esc(w[0])}</b><br>${esc(w[1])}</div>`;else if(note)h+=`<div class="pl-walk">${esc(note)}</div>`;
+  if(f){
+    if(f[3])h+=`<div class="pl-lab">Model's reasoning</div><div class="pl-box${clip}">${esc(f[3])}</div>`;
+    h+=`<div class="pl-lab">Args</div><div class="pl-box${clip}">${esc((f[4]||[]).map(c=>c[0]+': '+c[1]).join('\n\n')||'(no tool call)')}</div>`;
+    h+=`<div class="pl-lab">Result</div><div class="pl-box${clip}">${esc(f[5]||'(no output recorded)')}</div>`;
+  }else{h+=`<div class="pl-lab">Args (masked)</div><div class="pl-box${clip}">${esc(s[8]||'(no tool call)')}</div>`}
+  h+=`<div class="pl-lab">Meta</div><div class="pl-box">minute ${fmt(s[1],1)}, ${s[5]!=null?s[5]+' s since the previous step, ':''}${fmt(s[4])} output tokens</div>`;
+  if(MOM&&n==MOM[0])h+=`<div class="pl-mom">● THE MOMENT: ${esc(MOM[1]||'')}</div>`;
+  $('#pldetail').innerHTML=h;
 }
-function mark(i){const st=window._steps||[];if(!st.length)return;curStep=Math.max(0,Math.min(st.length-1,i));document.querySelectorAll('.st').forEach(e=>e.classList.toggle('on',+e.dataset.i===curStep));
-  const W=$('#tl').viewBox.baseVal.width||900,tmax=Math.max(80,...st.map(s=>s[1]));const c=$('#cur');if(c)c.setAttribute('x',34+(W-44)*st[curStep][1]/tmax);
-  const el=document.querySelector(`.st[data-i="${curStep}"]`);if(el){const b=$('#psteps');b.scrollTop=el.offsetTop-b.offsetTop-60}}
-$('#psteps').addEventListener('click',e=>{const d=e.target.closest('.st');if(d)mark(+d.dataset.i)});
-$('#tl').addEventListener('click',e=>{const d=e.target.closest('rect[data-i]');if(d)mark(+d.dataset.i)});
+$('#pllist').addEventListener('click',e=>{const d=e.target.closest('[data-i]');if(d)mark(+d.dataset.i)});
+$('#plslider').oninput=e=>mark(+e.target.value);
 $('#prev').onclick=()=>mark(curStep-1);$('#next').onclick=()=>mark(curStep+1);
+$('#plmom').onclick=()=>{if(MOM){const j=ST.findIndex(s=>s[0]==MOM[0]);if(j>=0)mark(j)}};
+$('#plfull').onclick=()=>{FULL=!FULL;$('#plfull').textContent='Full detail: '+(FULL?'on':'off');$('#plfull').setAttribute('aria-pressed',FULL);mark(curStep)};
+document.addEventListener('keydown',e=>{if(e.target.closest('input,select,textarea'))return;if(e.key==='ArrowRight')mark(curStep+1);if(e.key==='ArrowLeft')mark(curStep-1)});
 document.addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(b&&b.dataset.k){e.preventDefault();open(b.dataset.k,true,b.dataset.s?+b.dataset.s:0)}});
 
 lede();results();longpanel();sbs();modes();matrix();drawCards();ledger();fillPick();
-const h0=(location.hash||'').slice(1);open(runBy[h0]?h0:(sel.options[0]||{}).value,false);
+const h0=(location.hash||'').slice(1);open(runBy[h0]?h0:(STORIES[0]||[])[0]||(sel.options[0]||{}).value,false);
 </script>
 </body></html>
