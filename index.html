@@ -144,7 +144,7 @@ ul.tight{margin:0;padding-left:18px;display:grid;gap:4px;max-width:78ch}
 .deckctl button{font:600 14px var(--body);padding:8px 16px;border:1px solid var(--rule);border-radius:8px;background:var(--panel);color:var(--ink);cursor:pointer}
 @media (max-width:700px){.slide{padding:22px 18px;min-height:0}.hb .r{grid-template-columns:96px 1fr 90px}.sbs2{grid-template-columns:1fr}}
 .pl-mom{background:color-mix(in srgb,#e5484d 18%,#0e141b)!important;border:2px solid #e5484d!important;color:#ffb4b4!important}
-</style>
+.ltx{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}.ltxc{border:1px solid var(--rule);border-radius:10px;padding:12px;background:var(--panel);min-width:0}.ltxc p{margin:.45em 0;font-size:.92em}.ltxc .cl{color:var(--muted)}.ltxh{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;justify-content:space-between}</style>
 
 <div class="modebar" role="group" aria-label="View"><button id="vSlides" aria-pressed="true">Presentation</button><button id="vReport" aria-pressed="false">Full report</button></div>
 <div class="deck" id="deck"><div id="slideBox"></div><div class="deckctl"><button id="sPrev">&larr; Previous</button><span class="num" id="sPos"></span><button id="sNext">Next &rarr;</button></div></div>
@@ -181,6 +181,7 @@ ul.tight{margin:0;padding-left:18px;display:grid;gap:4px;max-width:78ch}
     <div class="panel"><h3>Rerun at 5 hours</h3><ul class="tight" id="longlist"></ul></div>
   </div>
   <div class="tbl"><table id="ltab"></table></div>
+  <h3 style="margin-top:1.4em">Inside the long turns: schema and policy examples</h3><p>Four Argon runs that ran out of time at 80 minutes, each set against Claude on the same task. Each long turn ends in one more read or script, not a deliverable.</p><div id="ltxbox"></div>
 </section>
 
 <section id="sbs">
@@ -434,6 +435,14 @@ document.addEventListener('keydown',e=>{if(e.target.closest('input,select,textar
 document.addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(b&&b.dataset.k){e.preventDefault();open(b.dataset.k,true,b.dataset.s?+b.dataset.s:0)}});
 
 
+
+// long-turn deep dive: four Argon runs that ran out of time, against Claude on the same task (80 minute runs, fixed)
+const LTX=[
+ {k:'T03-argon-2',t:'schema or table layout',task:'Recurring deposit eligibility rule check',turn:'Turn 15 of 20: about 64,000 output tokens over 8 minutes to decide to list every column of one wide transactions table.',next:'The next turn was another exploration script. The run ran out of time with no deliverable started.',claude:'Claude: 3 of 3 runs finished in 23 to 30 minutes; its largest turn was under 3,000 tokens.'},
+ {k:'T01-argon-1',t:'schema or table layout',task:'Weekly card creation audit',turn:'Turn 42 of 45: about 59,000 output tokens over 12 minutes to page through every table in two schemas and print their columns, after earlier listing calls had failed.',next:'The next turn rewrote the same listing script. The run ran out of time.',claude:'Claude: finished in 36 minutes; its largest turn was under 3,700 tokens.'},
+ {k:'T10-argon-1',t:'documentation or policy',task:'Incoming transfer to bill audit',turn:'9 turns of 8,000+ tokens. Three of them, about 62,000 to 64,000 tokens and 7 to 8 minutes each, decide which wiki pages to print in full, then which to print again.',next:'Each ended in one more page read. The run ran out of time after 23 turns.',claude:'Claude: full marks in 15 and 17 minutes; its largest turn was under 3,800 tokens.'},
+ {k:'T22-argon-1',t:'documentation or policy',task:'Missing due dates on linked bill payees',turn:'Turn 25: about 63,000 tokens over 11 minutes to fix a one-line paging check and list the wiki pages again. Turn 27: another 62,000 tokens over 9 minutes to reprint the first 95 lines of a page file it had already found.',next:'The run ran out of time after 31 turns.',claude:'Claude: full marks in 3 of 3 runs, 28 to 45 minutes.'}];
+function ltxHTML(){return `<div class="ltx">${LTX.map(e=>`<div class="ltxc"><div class="ltxh"><b>${esc(e.task)}</b><span class="chip">${esc(e.t)}</span></div><p>${esc(e.turn)}</p><p>${esc(e.next)}</p><p class="cl">${esc(e.claude)}</p><a href="#${e.k}">Open this run in the trace player</a></div>`).join('')}</div>`}
 // ---------- presentation view ----------
 const WY=D.why||{}, LT=D.lt||{}, O3=['Fable','Sol','Astra'];
 function hbars(rows,max,fmtv){return '<div class="hb">'+rows.map(([n,v,c])=>`<div class="r"><span>${esc(n)}</span><span class="t"><span class="f" style="width:${Math.max(0.6,100*v/max)}%;background:${c}"></span></span><span class="num">${fmtv(v)}</span></div>`).join('')+'</div>'}
@@ -467,6 +476,7 @@ function slides(){
    <div><h4>Turns of 8,000+ output tokens per run</h4>${hbars(mrows(m=>(LT[m]||{}).long_turns_per_run||0),lt.long_turns_per_run||1,v=>fmt(v,2))}</div>
    <div><h4>What Argon's ${lt.long_turns} long turns are about</h4>${hbars(Object.entries(topic).slice(0,5).map(([k,v])=>[k,v,'var(--argon)']),Object.values(topic)[0]||1,v=>fmt(100*v/tt,0)+'%')}</div></div>
    <p>${fmt(100*WY.Argon.time_share_in_8k_turns,0)}% of Argon's clock (${fmt(100*WY.Argon_timeout.time_share_in_8k_turns,0)}% in runs that timed out) goes to these turns; for Claude and GPT it is under 1%. Only ${(lt.long_turn_next_action||{}).deliver||0} of ${lt.long_turns} long turns lead to delivering; most end in one more small query.</p>`);
+  S.push(`<div class="kick">Inside the long turns</div><h2>What a long turn on a schema or a policy page looks like.</h2>${ltxHTML()}`);
   if(LT.Argon&&ex)S.push(`<div class="kick">Why the loops</div><h2>It re-opens results it already has, in cycles Claude and GPT do not show.</h2><div class="charts">
    <div><h4>Re-check cycles per run</h4>${hbars(mrows(m=>(LT[m]||{}).cycles_per_run||0),lt.cycles_per_run||1,v=>fmt(v,2))}</div>
    <div><h4>Argon's cycles</h4><p class="num" style="font-size:15px">median ${lt.cycle_turns_median} turns (${fmt(lt.cycle_minutes_median,0)} min), longest ${lt.cycle_turns_max} turns (${fmt(lt.cycle_minutes_max,0)} min)</p></div></div>
@@ -510,6 +520,7 @@ showSlide(0);
  ['Could the grader be wrong?','The grader\'s reasons for each of Argon\'s 65 misses at 80 minutes were read against the run. 4 look stricter than the prompt; they are labelled a grader issue, not a model failure, and still count as not full marks in the totals.','4 of 65 misses']];
  $('#objtab').innerHTML='<thead><tr><th>Question</th><th class="l">Answer</th><th class="l">Number</th></tr></thead><tbody>'+rows.map(r=>`<tr><td class="l"><b>${esc(r[0])}</b></td><td class="l">${esc(r[1])}</td><td class="l num">${esc(r[2])}</td></tr>`).join('')+'</tbody>';})();
 
+document.getElementById('ltxbox').innerHTML=ltxHTML();
 lede();results();longpanel();sbs();modes();matrix();drawCards();ledger();fillPick();
 const h0=(location.hash||'').slice(1);if(runBy[h0])setMode('report');open(runBy[h0]?h0:(STORIES[0]||[])[0]||(sel.options[0]||{}).value,false);
 </script>
