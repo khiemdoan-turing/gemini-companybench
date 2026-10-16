@@ -420,6 +420,7 @@ function mark(i){
     h+=`<div class="pl-lab">Result</div><div class="pl-box${clip}">${esc(f[5]||'(no output recorded)')}</div>`;
   }else{h+=`<div class="pl-lab">Args (masked)</div><div class="pl-box${clip}">${esc(s[8]||'(no tool call)')}</div>`}
   h+=`<div class="pl-lab">Meta</div><div class="pl-box">minute ${fmt(s[1],1)}, ${s[5]!=null?s[5]+' s since the previous step, ':''}${fmt(s[4])} output tokens</div>`;
+  if(MOM&&n==MOM[0]){const rr=runBy[cur];const cf=D.runs.filter(x=>x.alias===rr.alias&&x.model==='Fable').sort((x,y)=>y.reward-x.reward||x.turns-y.turns)[0];if(rr.model!=='Fable'&&cf)h+=`<div class="pl-walk">Claude Fable 5.1 on the same task: ${cf.turns} turns, ${cf.tool_calls} tool calls, ${fmt(cf.minutes,0)} minutes, score ${fmt(cf.reward,2)}. This run: ${rr.turns} turns, ${rr.tool_calls} tool calls, ${fmt(rr.minutes,0)} minutes, score ${fmt(rr.reward,2)}. <button class="link" data-k="${cf.key}">Open Claude's run</button></div>`}
   if(MOM&&n==MOM[0])h+=`<div class="pl-mom">● WHERE IT GOES WRONG: ${esc(MOM[1]||'')}</div>`;
   $('#pldetail').innerHTML=h;
 }
