@@ -254,6 +254,7 @@ ul.tight{margin:0;padding-left:18px;display:grid;gap:4px;max-width:78ch}
       <li id="gen"></li>
       <li>Tasks appear by alias (T01 to T40) and a generic title. No task ids, expected values or names from task data.</li>
     </ul></div>
+    <div class="panel" style="grid-column:1/-1"><h3>Questions about the method</h3><div class="tbl"><table id="objtab"></table></div></div>
   </div>
 </section>
 </div>
@@ -491,6 +492,23 @@ $('#vSlides').onclick=()=>setMode('slides');$('#vReport').onclick=()=>setMode('r
 document.addEventListener('keydown',e=>{if($('#deck').hidden||e.target.closest('input,select,textarea'))return;if(e.key==='ArrowRight'||e.key==='PageDown')showSlide(SI+1);if(e.key==='ArrowLeft'||e.key==='PageUp')showSlide(SI-1)});
 document.addEventListener('click',e=>{const b=e.target.closest('#slideBox [data-k]');if(b)setMode('report')},true);
 showSlide(0);
+
+
+// questions table (method section)
+(function(){const W=D.why||{},LT=D.lt||{},a=D.V['80'];if(!W.Argon)return;const O=['Fable','Sol','Astra'];const rng=(f,d)=>fmt(Math.min(...O.map(f)),d)+' to '+fmt(Math.max(...O.map(f)),d);
+ const rows=[
+ ['Is it our harness?','Same harness (Terminus 2), prompt, tools, sandbox and limits for all four models. Claude and GPT had 0 timeouts in 360 runs on the identical setup.',`${a.Argon.timeouts} of 120 Argon runs timed out; 0 of 360 others`],
+ ['Is it slow tools or a slow sandbox?','Waiting on commands is about 4% of the clock in Argon\'s timed-out runs; the rest is the model generating.','4% tool time'],
+ ['Is it a slow endpoint?','Per output token Argon is not slower than the others. It writes far more.',`${fmt(a.Argon.out_tok/1000)}k output tokens per run against ${rng(m=>a[m].out_tok/1000,0)}k`],
+ ['Did the output cap cut turns off?','The platform sets no output-token limit and no long decode; Argon ran on Vertex\'s default limit. Only 12 of its 11,484 turns came near 65,536 tokens; all returned a normal reply and none was repeated.','12 of 11,484 turns near the cap'],
+ ['Was reasoning effort unfair?','All four models ran at high effort. Argon\'s own platform default is medium; high is the slowest setting for Gemini.','high for all four'],
+ ['Does the reply format hurt Argon?','Yes, a little: the harness asks for a JSON reply each turn, and some of Argon\'s replies could not be read (for example an unescaped character). Each costs a turn.',`${fmt(W.Argon.parse_warn_per_run,1)} per run against ${rng(m=>W[m].parse_warn_per_run,1)}; about 4% of Argon's turns`],
+ ['Is it redoing calls because of the timeout?','No. A timeout ends the run; nothing is rerun inside it. The extra steps are exploration before the first deliverable and re-check cycles.',`${(LT.Argon||{}).steps_query_to_delivery_median} steps from first query to first deliverable against ${rng(m=>(LT[m]||{}).steps_query_to_delivery_median||0,0)}`],
+ ['Is it failing more calls?','No. The share of commands that return an error is about the same; Argon makes twice the calls, so it recovers from more errors.',`${fmt(100*W.Argon.error_share,0)}% of commands error against ${rng(m=>100*W[m].error_share,0)}%`],
+ ['Provider outages?','Stalls where the API sent nothing for 30 minutes were retried and are not counted as failures.','21 at 80 minutes, 13 in reruns, none for Claude or GPT'],
+ ['Is the 5 hour comparison fair?','Only Argon was rerun, and tasks whose rerun had not finished are dropped for all four models; those are Argon\'s slowest tasks, so this view favours Argon. A sensitivity line keeps all 40 tasks.',`${D.keep.length} of 40 tasks; sensitivity ${D.V.sens0.Argon.full} of 120`],
+ ['Could the grader be wrong?','The grader\'s reasons for each of Argon\'s 65 misses at 80 minutes were read against the run. 4 look stricter than the prompt; they are labelled a grader issue, not a model failure, and still count as not full marks in the totals.','4 of 65 misses']];
+ $('#objtab').innerHTML='<thead><tr><th>Question</th><th class="l">Answer</th><th class="l">Number</th></tr></thead><tbody>'+rows.map(r=>`<tr><td class="l"><b>${esc(r[0])}</b></td><td class="l">${esc(r[1])}</td><td class="l num">${esc(r[2])}</td></tr>`).join('')+'</tbody>';})();
 
 lede();results();longpanel();sbs();modes();matrix();drawCards();ledger();fillPick();
 const h0=(location.hash||'').slice(1);if(runBy[h0])setMode('report');open(runBy[h0]?h0:(STORIES[0]||[])[0]||(sel.options[0]||{}).value,false);
