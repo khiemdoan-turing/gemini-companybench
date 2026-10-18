@@ -452,7 +452,7 @@ function slides(){
   const lt=LT.Argon||{},topic=lt.long_turn_topic||{},tt=Object.values(topic).reduce((x,y)=>x+y,0)||1;
   const S=[];
   S.push(`<div class="kick">Turing CompanyBench · prepared for the Gemini team</div><h2>Gemini 4 Argon can do the work. It cannot finish it in time.</h2>
-   <p class="lede">40 realistic company jobs inside a simulated bank, run three times each by Gemini 4 Argon, Claude Fable 5.1 and two GPT models, in the same agent harness with the same 80 minute limit.</p>
+   <p class="lede">40 realistic company jobs built from real operational data of a fintech and personal finance company, run three times each by Gemini 4 Argon, Claude Fable 5.1 and two GPT models, in the same agent harness with the same 80 minute limit.</p>
    <div class="big"><div class="stat"><b>${a.Argon.timeouts} of 120</b><span>Argon runs out of time (Claude and GPT: 0 of 360)</span></div><div class="stat"><b>${fmt(a.Argon.tool_calls/((a.Fable.tool_calls+a.Sol.tool_calls+a.Astra.tool_calls)/3),1)}x</b><span>the tool calls of Claude and GPT</span></div><div class="stat"><b>${fmt(a.Argon.out_tok/Math.max(a.Fable.out_tok,a.Sol.out_tok,a.Astra.out_tok),1)}x+</b><span>the output tokens</span></div></div>`);
   S.push(`<div class="kick">The test</div><h2>A tool-use test inside a working company, not a quiz.</h2><ul>
    <li>Each task is an analyst's job: audit a fee, reconcile transfers, trace a failed payment, check a fraud report.</li>
